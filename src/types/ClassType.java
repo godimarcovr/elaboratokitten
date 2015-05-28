@@ -66,7 +66,12 @@ public final class ClassType extends ReferenceType {
 	 */
 
 	private final Map<String, Set<MethodSignature>> methods = new HashMap<>();
-
+	
+	
+	private final Set<TestSignature> tests = new HashSet<>();
+	
+	private final Set<FixtureSignature> fixtures = new HashSet<>();
+	
 	/**
 	 * The utility for issuing errors about this class.
 	 */
@@ -309,7 +314,14 @@ public final class ClassType extends ReferenceType {
 		// we add this new method
 		set.add(sig);
 	}
+	
+	public final void addFixture(FixtureSignature fs){
+		this.fixtures.add(fs);
+	}
 
+	public final void addTest(TestSignature ts){
+		this.tests.add(ts);
+	}
 	/**
 	 * Yields the fields of this class.
 	 *
@@ -425,6 +437,22 @@ public final class ClassType extends ReferenceType {
 		return superclass == null ? null : superclass.methodLookup(name, formals);
 	}
 
+	public final TestSignature testLookup(String name){
+		for(TestSignature ts:this.tests){
+			if(ts.getName().equals(name)){
+				return ts;
+			}
+		}
+		return null;
+	}
+	
+	public Set<TestSignature> getTests() {
+		return tests;
+	}
+
+	public final Set<FixtureSignature> fixturesLookup(){
+		return this.fixtures;
+	}
 	/**
 	 * Looks up from this class for the signatures of all methods
 	 * with the given name and parameters types compatible with those

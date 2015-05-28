@@ -42,13 +42,13 @@ public class JavaClassGenerator extends ClassGen {
 	 * generate them without this helper object, but it would be really complex!
 	 */
 
-	private final InstructionFactory factory;
+	protected final InstructionFactory factory;
 
 	/**
 	 * An empty set of interfaces, used to generate the Java class.
 	 */
 
-	private final static String[] noInterfaces = new String[] {};
+	protected final static String[] noInterfaces = new String[] {};
 
 	/**
 	 * Builds a class generator for the given class type.
@@ -58,6 +58,8 @@ public class JavaClassGenerator extends ClassGen {
 	 *             translated. If this is {@code null}, all class members are translated
 	 */
 
+	
+	
 	public JavaClassGenerator(ClassType clazz, Set<ClassMemberSignature> sigs) {
 		super(clazz.getName(), // name of the class
 			// the superclass of the Kitten Object class is set to be the Java java.lang.Object class
@@ -87,6 +89,16 @@ public class JavaClassGenerator extends ClassGen {
 			for (MethodSignature method: s)
 				if (sigs == null || sigs.contains(method))
 					method.createMethod(this);
+	}
+
+	public JavaClassGenerator(String class_name, String super_class_name,
+			String file_name, int access_flags, String[] interfaces,
+			ConstantPoolGen cp) {
+		super(class_name, super_class_name, file_name, access_flags, interfaces, cp);
+		// create a new instruction factory that places the constants
+		// in the previous constant pool. This is useful for generating
+		// complex bytecodes that access the constant pool
+		this.factory = new InstructionFactory(getConstantPool());
 	}
 
 	/**
@@ -131,7 +143,7 @@ public class JavaClassGenerator extends ClassGen {
 	 *         generated for this block
 	 */
 
-	private InstructionHandle generateJavaBytecode(Block block, Map<Block, InstructionHandle> done, InstructionList instructions) {
+	protected InstructionHandle generateJavaBytecode(Block block, Map<Block, InstructionHandle> done, InstructionList instructions) {
 		// we first check if we already processed the block
 		InstructionHandle result = done.get(block);
 		if (result != null)
@@ -166,7 +178,7 @@ public class JavaClassGenerator extends ClassGen {
 	 *                     of {@code block}, including some <i>glue</i>
 	 */
  
-	private void generateJavaBytecodeFollows(Block block, Map<Block, InstructionHandle> done, InstructionList instructions) {
+	protected void generateJavaBytecodeFollows(Block block, Map<Block, InstructionHandle> done, InstructionList instructions) {
 		List<Block> follows = block.getFollows();
 
 		// this is where the Java bytecode currently ends
@@ -210,7 +222,7 @@ public class JavaClassGenerator extends ClassGen {
 	 * @return the same Java bytecode, simplified as above
 	 */
 
-	private InstructionList removeRedundancies(InstructionList il) {
+	protected InstructionList removeRedundancies(InstructionList il) {
 		@SuppressWarnings("unchecked")
 		Iterator<InstructionHandle> it = il.iterator();
 

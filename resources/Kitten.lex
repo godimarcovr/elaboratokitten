@@ -146,7 +146,7 @@ String myString = "";
 
 %%
 <YYINITIAL>"\""         {myString=""; yybegin(STRING);}
-<YYINITIAL>[ \t\f]		{}
+<YYINITIAL>[ \t\f\r]		{}
 <YYINITIAL>"/*"         {commentCount++; yybegin(COMMENT);}
 <YYINITIAL>\n	        {newline();}
 <YYINITIAL>while        {return tok(sym.WHILE, null);}
@@ -154,6 +154,9 @@ String myString = "";
 <YYINITIAL>method       {return tok(sym.METHOD, null);}
 <YYINITIAL>field        {return tok(sym.FIELD, null);}
 <YYINITIAL>constructor  {return tok(sym.CONSTRUCTOR, null);}
+<YYINITIAL>test         {return tok(sym.TEST, null);}
+<YYINITIAL>fixture      {return tok(sym.FIXTURE, null);}
+<YYINITIAL>assert       {return tok(sym.ASSERT, null);}
 <YYINITIAL>if           {return tok(sym.IF, null);}
 <YYINITIAL>then         {return tok(sym.THEN, null);}
 <YYINITIAL>else         {return tok(sym.ELSE, null);}
@@ -210,7 +213,7 @@ String myString = "";
                         if (myNum>255) err("Overflow in ASCII Code");
                         else myString += (char)myNum;}
 <STRING>\\\\            {myString += "\\";}
-<STRING>\\[ \t\f\n]+\\  {}
+<STRING>\\[ \t\f\n\r]+\\  {}
 <STRING>"\\""           {myString += "\"";}
 <STRING>"\\'"           {myString += "'";}
 <STRING>"\""            {yybegin(YYINITIAL); return tok(sym.STRING, myString);}

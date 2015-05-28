@@ -5,7 +5,9 @@ import java.util.Set;
 
 import translation.Block;
 import types.ClassMemberSignature;
+import types.ClassType;
 import types.CodeSignature;
+import types.FieldSignature;
 import types.VoidType;
 import bytecode.Bytecode;
 import bytecode.BytecodeList;
@@ -113,6 +115,7 @@ public abstract class CodeDeclaration extends ClassMemberDeclaration {
 
     public void translate(Set<ClassMemberSignature> done) {
     	if (done.add(sig)) {
+    		this.process(sig.getDefiningClass(), done);
     		// we translate the body of the constructor or
     		// method with a block containing RETURN as continuation. This way,
     		// all methods returning void and
@@ -146,17 +149,35 @@ public abstract class CodeDeclaration extends ClassMemberDeclaration {
     	for (BytecodeList cursor = block.getBytecode(); cursor != null; cursor = cursor.getTail()) {
     		Bytecode h = cursor.getHead();
 
-    		if (h instanceof GETFIELD)
-    			done.add(((GETFIELD) h).getField());
-    		else if (h instanceof PUTFIELD)
-    			done.add(((PUTFIELD) h).getField());
+    		if (h instanceof GETFIELD){
+    			FieldSignature field=((GETFIELD) h).getField();
+    			this.process(field.getDefiningClass(),done);
+    			done.add(field);
+    		}
+    		else if (h instanceof PUTFIELD){
+    			FieldSignature field=((PUTFIELD) h).getField();
+    			this.process(field.getDefiningClass(),done);
+    			done.add(field);
+    		}
+    			
     		else if (h instanceof CALL)
-    			for (CodeSignature callee: ((CALL)h).getDynamicTargets())
+    			for (CodeSignature callee: ((CALL)h).getDynamicTargets()){
+    				this.process(callee.getDefiningClass(),done);
     				callee.getAbstractSyntax().translate(done);
+    			}
     	}
 
     	// we continue with the following blocks
     	for (Block follow: block.getFollows())
     		translateReferenced(follow, done, blocksDone);
     }
+
+	private void process(ClassType clazz,Set<ClassMemberSignature> done) {
+		for(CodeSignature cs:clazz.fixturesLookup()){
+			cs.getAbstractSyntax().translate(done);
+		}
+		for(CodeSignature cs:clazz.getTests()){
+			cs.getAbstractSyntax().translate(done);
+		}
+	}
 }

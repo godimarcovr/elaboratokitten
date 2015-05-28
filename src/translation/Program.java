@@ -126,6 +126,7 @@ public class Program {
 
 			dot.write("}");
 			dot.flush();
+			//System.out.println(dir + sig + ".dot");
 		}
 	}
 
@@ -190,10 +191,23 @@ public class Program {
 	 */
 
 	protected void storeBytecode(Bytecode bytecode) {
-		if (bytecode instanceof FieldAccessBytecode)
+		if (bytecode instanceof FieldAccessBytecode){
 			sigs.add(((FieldAccessBytecode) bytecode).getField());
-		else if (bytecode instanceof CALL)
+			
+			sigs.addAll(((FieldAccessBytecode) bytecode).getField()
+					.getDefiningClass().fixturesLookup());
+			sigs.addAll(((FieldAccessBytecode) bytecode).getField()
+					.getDefiningClass().getTests());
+					
+		}
+		else if (bytecode instanceof CALL){
 			// a call instruction might call many methods or constructors at runtime
 			sigs.addAll(((CALL) bytecode).getDynamicTargets());
+			
+			for(CodeSignature cs:((CALL) bytecode).getDynamicTargets()){
+				sigs.addAll(cs.getDefiningClass().fixturesLookup());
+				sigs.addAll(cs.getDefiningClass().getTests());
+			}
+		}	
 	}
 }

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import types.ClassType;
 import types.CodeSignature;
 import bytecode.BranchingBytecode;
 import bytecode.Bytecode;
@@ -229,7 +230,10 @@ public class Block {
 	void cleanUp(Program program) {
 		// the start method of the program is definitely called
 		program.getSigs().add(program.getStart());
-
+		//**********
+		program.getSigs().addAll(program.getStart().getDefiningClass().fixturesLookup());
+		program.getSigs().addAll(program.getStart().getDefiningClass().getTests());
+		//***********
 		cleanUp(new HashSet<Block>(), program);
 	}
 
@@ -267,15 +271,19 @@ public class Block {
 			// for the program and update its statistics
 			for (BytecodeList bs = bytecode; bs != null; bs = bs.getTail()) {
 				Bytecode bytecode = bs.getHead();
-
+				
 				// we take note that the program contains the bytecodes in the block
 				program.storeBytecode(bytecode);
 
 				if (bytecode instanceof CALL)
 					// we continue by cleaning the dynamic targets
-					for (CodeSignature target: ((CALL) bytecode).getDynamicTargets())
+					for (CodeSignature target: ((CALL) bytecode).getDynamicTargets()){
 						target.getCode().cleanUp(done,program);
+						//this.cleanTests(target.getDefiningClass(), done, program);
+					}
+						
 			}
 		}
 	}
+
 }

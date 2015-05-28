@@ -1,0 +1,44 @@
+class Scramble{
+	field int[] stringa
+	field int len
+
+	constructor(int[] in,int len){
+		this.stringa:=in;
+		this.len:=len
+	}
+
+	method void scramble(String s,int[] rimasti, int l){
+		if(l=1)then{
+			s.concat(rimasti[0]).output();
+			"\n".output();
+			return
+		};
+		int i:=0;
+		for(i:=0;i<l;i:=i+1){
+			int[] arr:=new int[l-1];
+			int j:=0;
+			for(j:=0;j<i;j:=(j+1)){
+				arr[j]:=rimasti[j]
+			};
+			for(j:=(i+1);j<l;j:=j+1){
+				arr[j-1]:=rimasti[j]
+			};
+			this.scramble(s.concat(rimasti[i]).concat("//"),arr,l-1)
+		}
+	}
+	
+	method void mesia(){
+		this.scramble("",this.stringa,this.len)
+	}
+		
+
+	method void main(){
+		int[] arr:=new int[4];
+		arr[0]:=6;
+		arr[1]:=9;
+		arr[2]:=2;
+		arr[3]:=5;
+		Scramble s:=new Scramble(arr,4);
+		s.mesia()
+	}
+}

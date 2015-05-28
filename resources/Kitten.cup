@@ -68,7 +68,8 @@ terminal CLASS, EXTENDS, FIELD, METHOD, CONSTRUCTOR, NEW,
 	 LBRACK, RBRACK, LBRACE, RBRACE, DOT, PLUS, MINUS, 
 	 TIMES, DIVIDE, EQ, NEQ, LT, LE, GT, GE, AND, OR, NOT,
 	 ASSIGN, ARRAYSYMBOL, IF, THEN, ELSE, WHILE, FOR, 
-	 RETURN, NIL, TRUE, FALSE, UMINUS;
+	 RETURN, NIL, TRUE, FALSE, UMINUS
+	 , TEST, ASSERT, FIXTURE;
 
 
 //           abstract syntax class   non-terminal
@@ -79,6 +80,8 @@ non terminal FormalParameters        formals;
 non terminal FormalParameters        formals_aux;
 non terminal Command                 com;
 non terminal Command                 comseq;
+//non terminal Command                 comtest;
+//non terminal Command                 comtestseq;
 non terminal Expression              exp;
 non terminal ExpressionSeq           expseq;
 non terminal ExpressionSeq           expseq_aux;
@@ -162,7 +165,10 @@ class_members ::=
    | METHOD:m typeplus:returnType ID:name LPAREN formals:formals RPAREN
        com:body class_members:next
      {: RESULT = new MethodDeclaration
-	(mleft, returnType, name, formals, body, next); :} ;
+	(mleft, returnType, name, formals, body, next); :} 
+	| TEST:t ID:name com:body class_members:next {: RESULT = new TestDeclaration(tleft,name,body,next); :}
+	| FIXTURE:fix com:body class_members:next {: RESULT = new FixtureDeclaration(fixleft,body,next); :};
+	
 
 // a comma-separated and possibly empty list
 // of formal parameters of a method or constructor
@@ -206,8 +212,45 @@ com ::=
    | LBRACE:p RBRACE
      {: RESULT = new Skip(pleft); :}
    | exp:receiver DOT:d ID:name LPAREN expseq:actuals RPAREN
-     {: RESULT = new MethodCallCommand(dleft, receiver, name, actuals); :} ;
+     {: RESULT = new MethodCallCommand(dleft, receiver, name, actuals); :}
+   | ASSERT:ass LPAREN exp:condition RPAREN  {: RESULT = new Assert(assleft,condition); :};
+/*
+// a command, i.e., something which does not yield any value
 
+comtest ::=
+     lvalue:leftvalue ASSIGN:a exp:rightvalue
+     {: RESULT = new Assignment(aleft,leftvalue,rightvalue); :}
+   | type:t ID:id ASSIGN exp:initialiser
+     {: RESULT = new LocalDeclaration(tleft,t, id, initialiser); :}
+   | RETURN:r
+     {: RESULT = new Return(rleft,null); :}
+   | RETURN:r exp:returned
+     {: RESULT = new Return(rleft,returned); :}
+   | IF:i LPAREN exp:condition RPAREN THEN comtest:then
+     {: RESULT = new IfThenElse(ileft,condition,then); :}
+   | IF:i LPAREN exp:condition RPAREN THEN comtest:then ELSE comtest:_else
+     {: RESULT = new IfThenElse(ileft,condition,then,_else); :}
+   | WHILE:w LPAREN exp:condition RPAREN comtest:body
+     {: RESULT = new While(wleft,condition,body); :}
+   | FOR:f LPAREN comtest:initialisation SEMICOLON
+       exp:condition SEMICOLON comtest:update RPAREN comtest:body
+     {: RESULT = new For(fleft,initialisation,condition,update,body); :}
+   | LBRACE:p comtestseq:c RBRACE
+     {: RESULT = new LocalScope(pleft,c); :}
+   | LBRACE:p RBRACE
+     {: RESULT = new Skip(pleft); :}
+   | exp:receiver DOT:d ID:name LPAREN expseq:actuals RPAREN
+     {: RESULT = new MethodCallCommand(dleft, receiver, name, actuals); :}
+   | ASSERT:ass LPAREN exp:condition RPAREN  {: RESULT = null; :};
+
+// a non-empty sequence of commands
+
+comtestseq ::=
+     comtest:c
+     {: RESULT = c; :}
+   | comtest:f SEMICOLON:c comtestseq:s
+     {: RESULT = new CommandSeq(cleft,f,s); :} ;
+*/
 // a non-empty sequence of commands
 
 comseq ::=

@@ -84,7 +84,7 @@ public abstract class CodeSignature extends ClassMemberSignature {
     @Override
     public String toString() {
     	return getDefiningClass() + "."
-   			+ getName() + "(" + getParameters() + "):" + getReturnType();
+   			+ getName() + "(" + getParameters() + ")" + getReturnType();
     }
 
     /**

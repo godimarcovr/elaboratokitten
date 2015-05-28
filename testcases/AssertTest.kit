@@ -1,0 +1,25 @@
+class AssertTest {
+	constructor() {}
+	
+	method int fib(int n)
+		if (n = 0 | n = 1) then return 1
+		else return this.fib(n - 1) + this.fib(n - 2)
+
+	method void main() {
+		String s := "3";
+		"Insert a relatively small number: ".output();
+		"Fibonacci(".concat(s).concat(") = ".concat(new AssertTest().fib(s.toInt()))).output();
+		"\n".output()
+	}
+	fixture
+		"fixted".output()
+	
+	fixture
+		"fixted2".output()
+	
+	test prova{
+		"ciccio".output();
+		String s:="ciccio";
+		assert("ciccio".equals(s))
+	}
+}
