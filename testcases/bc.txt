@@ -1,0 +1,27 @@
+Compiled from "AssertTest.kit"
+public class AssertTestTest {
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_0      
+       1: istore_1      
+       2: iconst_0      
+       3: istore_2      
+       4: lconst_0      
+       5: lstore_3      
+       6: aconst_null   
+       7: astore        5
+       9: ldc           #43                 // String Test execution for class AssertTest: \n
+      11: astore        4
+      13: aload         4
+      15: ldc           #45                 // String   - prova: 
+      17: invokevirtual #51                 // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
+      20: astore        4
+      22: new           #53                 // class AssertTest
+      25: dup           
+      26: invokespecial #55                 // Method AssertTest."<init>":()V
+      29: pop           
+      30: getstatic     #61                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      33: aload         4
+      35: invokevirtual #66                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      38: return        
+}

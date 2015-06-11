@@ -141,7 +141,7 @@ public abstract class CodeDeclaration extends ClassMemberDeclaration {
      * @param blocksDone the blocks that have been already processed
      */
 
-    private void translateReferenced(Block block, Set<ClassMemberSignature> done, Set<Block> blocksDone) {
+    protected void translateReferenced(Block block, Set<ClassMemberSignature> done, Set<Block> blocksDone) {
     	// if we already processed the block, we return immediately
     	if (!blocksDone.add(block))
     		return;
@@ -172,7 +172,7 @@ public abstract class CodeDeclaration extends ClassMemberDeclaration {
     		translateReferenced(follow, done, blocksDone);
     }
 
-	private void process(ClassType clazz,Set<ClassMemberSignature> done) {
+	protected void process(ClassType clazz,Set<ClassMemberSignature> done) {
 		for(CodeSignature cs:clazz.fixturesLookup()){
 			cs.getAbstractSyntax().translate(done);
 		}

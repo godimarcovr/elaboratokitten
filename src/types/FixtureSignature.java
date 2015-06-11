@@ -10,7 +10,7 @@ import absyn.CodeDeclaration;
 public class FixtureSignature extends CodeSignature {
 	private static int fixcounter=0;
 	public FixtureSignature(ClassType clazz, CodeDeclaration abstractSyntax) {
-		super(clazz, VoidType.INSTANCE, TypeList.EMPTY, "FIXTURE"+fixcounter++, abstractSyntax);
+		super(clazz, VoidType.INSTANCE, TypeList.EMPTY.push(clazz), "FIXTURE"+fixcounter++, abstractSyntax);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -20,10 +20,13 @@ public class FixtureSignature extends CodeSignature {
 	}
 	
 	public void createFixture(TestClassGenerator classGen){
+		//le fixture della classe C diventano metodi in CTest
+		// con un parametro di tipo C
+		
 		MethodGen methodGen = new MethodGen
 				(Constants.ACC_PRIVATE | Constants.ACC_STATIC, // public
 				getReturnType().toBCEL(), // return type
-				getParameters().toBCEL(), // parameters types, if any
+				this.getParameters().toBCEL(), // parameters types, if any
 				null, // parameters names: we do not care
 				getName().toString(), // method's name
 				classGen.getClassName(), // defining class

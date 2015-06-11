@@ -4,8 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import javaBytecodeGenerator.JavaClassGenerator;
 
+import javaBytecodeGenerator.JavaClassGenerator;
+import javaBytecodeGenerator.TestClassGenerator;
 import types.ClassMemberSignature;
 import types.CodeSignature;
 import types.ClassType;
@@ -209,5 +210,20 @@ public class Program {
 				sigs.addAll(cs.getDefiningClass().getTests());
 			}
 		}	
+	}
+
+	public void generateTestBytecode() {
+		// we consider one class at the time and we generate its Java bytecode
+				for (ClassType clazz: ClassType.getAll()){
+					//controllo presenza test
+					if(!clazz.getTests().isEmpty()){
+						try {
+							new TestClassGenerator(clazz, sigs).getJavaClass().dump(clazz + "Test.class");
+						}
+						catch (IOException e) {
+							System.out.println("Could not dump the Java bytecode for class " + clazz);
+						}
+					}
+				}	
 	}
 }

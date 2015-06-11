@@ -162,6 +162,7 @@ public class JavaClassGenerator extends ClassGen {
 		generateJavaBytecodeFollows(block, done, instructions);
 
 		// we return the beginning of the Java bytecode generated for the block
+		
 		return result;
 	}
 
