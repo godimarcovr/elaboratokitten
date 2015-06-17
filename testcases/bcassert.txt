@@ -1,0 +1,3 @@
+Compiled from "MyAssert.kit"
+public class MyAssert extends Object {
+}

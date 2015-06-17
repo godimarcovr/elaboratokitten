@@ -1,26 +1,34 @@
 class AssertTest {
 	constructor() {}
 	
-	method int fib(int n)
-		if (n = 0 | n = 1) then return 1
-		else return this.fib(n - 1) + this.fib(n - 2)
+	field int number
+	
+	method int fib()
+		if (this.number = 0 | this.number = 1) then return 1
+		else{
+			AssertTest a:=new AssertTest();
+			a.number:=this.number-1;
+			AssertTest b:=new AssertTest();
+			b.number:=this.number-2;
+			return a.fib()+b.fib()
+		} 
 
 	method void main() {
-		String s := "3";
-		"Insert a relatively small number: ".output();
-		"Fibonacci(".concat(s).concat(") = ".concat(new AssertTest().fib(s.toInt()))).output();
-		"\n".output()
+		AssertTest a:= new AssertTest();
+		a.number:=5;
+		"".concat(a.fib()).output()
 	}
-	fixture
-		"fixted".output()
 	
 	fixture
-		"fixted2".output()
+		this.number:=5
 	
 	test prova{
-		"ciccio".output();
-		String s:="ciccio";
-		assert("ciccio".equals(s));
-		"wow".output()
+		"Test 1: dovrebbe avere successo\n".output();
+		assert(this.fib()=8)
+	}
+	
+	test prova2{
+		"Test 2: dovrebbe fallire\n".output();
+		assert(this.fib()=5)
 	}
 }

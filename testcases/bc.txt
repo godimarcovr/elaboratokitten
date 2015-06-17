@@ -1,5 +1,5 @@
-Compiled from "AssertTest.kit"
-public class AssertTestTest {
+Compiled from "MyAssert.kit"
+public class MyAssertTest {
   public static void main(java.lang.String[]);
     Code:
        0: iconst_0      
@@ -8,20 +8,254 @@ public class AssertTestTest {
        3: istore_2      
        4: lconst_0      
        5: lstore_3      
-       6: aconst_null   
-       7: astore        5
-       9: ldc           #43                 // String Test execution for class AssertTest: \n
-      11: astore        4
-      13: aload         4
-      15: ldc           #45                 // String   - prova: 
-      17: invokevirtual #51                 // Method java/lang/String.concat:(Ljava/lang/String;)Ljava/lang/String;
-      20: astore        4
-      22: new           #53                 // class AssertTest
+       6: fconst_0      
+       7: fstore        6
+       9: new           #8                  // class runTime/String
+      12: dup           
+      13: ldc           #10                 // String \nTest execution for class MyAssert:\n
+      15: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+      18: astore        5
+      20: aload         5
+      22: new           #8                  // class runTime/String
       25: dup           
-      26: invokespecial #55                 // Method AssertTest."<init>":()V
-      29: pop           
-      30: getstatic     #61                 // Field java/lang/System.out:Ljava/io/PrintStream;
-      33: aload         4
-      35: invokevirtual #66                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
-      38: return        
+      26: ldc           #16                 // String   - prova: 
+      28: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+      31: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+      34: astore        5
+      36: new           #22                 // class MyAssert
+      39: dup           
+      40: invokespecial #25                 // Method MyAssert."<init>":()V
+      43: dup           
+      44: invokestatic  #29                 // Method FIXTURE1:(LMyAssert;)V
+      47: dup           
+      48: invokestatic  #32                 // Method FIXTURE0:(LMyAssert;)V
+      51: invokestatic  #38                 // Method java/lang/System.nanoTime:()J
+      54: lstore_3      
+      55: invokestatic  #42                 // Method prova:(LMyAssert;)LrunTime/String;
+      58: invokestatic  #38                 // Method java/lang/System.nanoTime:()J
+      61: lload_3       
+      62: lsub          
+      63: ldc2_w        #43                 // long 10000l
+      66: ldiv          
+      67: l2f           
+      68: ldc           #45                 // float 100.0f
+      70: fdiv          
+      71: dup           
+      72: fload         6
+      74: fadd          
+      75: fstore        6
+      77: new           #8                  // class runTime/String
+      80: dup           
+      81: ldc           #47                 // String [
+      83: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+      86: swap          
+      87: invokevirtual #50                 // Method runTime/String.concat:(F)LrunTime/String;
+      90: new           #8                  // class runTime/String
+      93: dup           
+      94: ldc           #52                 // String ms] 
+      96: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+      99: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     102: swap          
+     103: dup           
+     104: new           #8                  // class runTime/String
+     107: dup           
+     108: ldc           #54                 // String 
+     110: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     113: invokevirtual #58                 // Method runTime/String.equals:(LrunTime/String;)Z
+     116: ifeq          138
+     119: aload         5
+     121: new           #8                  // class runTime/String
+     124: dup           
+     125: ldc           #62                 // String passed 
+     127: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     130: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     133: astore        5
+     135: goto          154
+     138: aload         5
+     140: new           #8                  // class runTime/String
+     143: dup           
+     144: ldc           #60                 // String failed 
+     146: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     149: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     152: astore        5
+     154: nop           
+     155: swap          
+     156: aload         5
+     158: swap          
+     159: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     162: astore        5
+     164: dup           
+     165: new           #8                  // class runTime/String
+     168: dup           
+     169: ldc           #54                 // String 
+     171: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     174: invokevirtual #58                 // Method runTime/String.equals:(LrunTime/String;)Z
+     177: ifeq          203
+     180: pop           
+     181: aload         5
+     183: new           #8                  // class runTime/String
+     186: dup           
+     187: ldc           #66                 // String \n
+     189: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     192: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     195: astore        5
+     197: iinc          1, 1
+     200: goto          246
+     203: aload         5
+     205: new           #8                  // class runTime/String
+     208: dup           
+     209: ldc           #64                 // String  at 
+     211: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     214: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     217: astore        5
+     219: aload         5
+     221: swap          
+     222: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     225: astore        5
+     227: aload         5
+     229: new           #8                  // class runTime/String
+     232: dup           
+     233: ldc           #66                 // String \n
+     235: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     238: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     241: astore        5
+     243: iinc          2, 1
+     246: nop           
+     247: aload         5
+     249: new           #8                  // class runTime/String
+     252: dup           
+     253: ldc           #68                 // String   - prova2: 
+     255: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     258: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     261: astore        5
+     263: new           #22                 // class MyAssert
+     266: dup           
+     267: invokespecial #25                 // Method MyAssert."<init>":()V
+     270: dup           
+     271: invokestatic  #29                 // Method FIXTURE1:(LMyAssert;)V
+     274: dup           
+     275: invokestatic  #32                 // Method FIXTURE0:(LMyAssert;)V
+     278: invokestatic  #38                 // Method java/lang/System.nanoTime:()J
+     281: lstore_3      
+     282: invokestatic  #71                 // Method prova2:(LMyAssert;)LrunTime/String;
+     285: invokestatic  #38                 // Method java/lang/System.nanoTime:()J
+     288: lload_3       
+     289: lsub          
+     290: ldc2_w        #43                 // long 10000l
+     293: ldiv          
+     294: l2f           
+     295: ldc           #45                 // float 100.0f
+     297: fdiv          
+     298: dup           
+     299: fload         6
+     301: fadd          
+     302: fstore        6
+     304: new           #8                  // class runTime/String
+     307: dup           
+     308: ldc           #47                 // String [
+     310: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     313: swap          
+     314: invokevirtual #50                 // Method runTime/String.concat:(F)LrunTime/String;
+     317: new           #8                  // class runTime/String
+     320: dup           
+     321: ldc           #52                 // String ms] 
+     323: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     326: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     329: swap          
+     330: dup           
+     331: new           #8                  // class runTime/String
+     334: dup           
+     335: ldc           #54                 // String 
+     337: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     340: invokevirtual #58                 // Method runTime/String.equals:(LrunTime/String;)Z
+     343: ifeq          365
+     346: aload         5
+     348: new           #8                  // class runTime/String
+     351: dup           
+     352: ldc           #62                 // String passed 
+     354: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     357: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     360: astore        5
+     362: goto          381
+     365: aload         5
+     367: new           #8                  // class runTime/String
+     370: dup           
+     371: ldc           #60                 // String failed 
+     373: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     376: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     379: astore        5
+     381: nop           
+     382: swap          
+     383: aload         5
+     385: swap          
+     386: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     389: astore        5
+     391: dup           
+     392: new           #8                  // class runTime/String
+     395: dup           
+     396: ldc           #54                 // String 
+     398: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     401: invokevirtual #58                 // Method runTime/String.equals:(LrunTime/String;)Z
+     404: ifeq          430
+     407: pop           
+     408: aload         5
+     410: new           #8                  // class runTime/String
+     413: dup           
+     414: ldc           #66                 // String \n
+     416: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     419: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     422: astore        5
+     424: iinc          1, 1
+     427: goto          473
+     430: aload         5
+     432: new           #8                  // class runTime/String
+     435: dup           
+     436: ldc           #64                 // String  at 
+     438: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     441: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     444: astore        5
+     446: aload         5
+     448: swap          
+     449: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     452: astore        5
+     454: aload         5
+     456: new           #8                  // class runTime/String
+     459: dup           
+     460: ldc           #66                 // String \n
+     462: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     465: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     468: astore        5
+     470: iinc          2, 1
+     473: nop           
+     474: aload         5
+     476: new           #8                  // class runTime/String
+     479: dup           
+     480: ldc           #66                 // String \n
+     482: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     485: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     488: astore        5
+     490: aload         5
+     492: iload_1       
+     493: invokevirtual #74                 // Method runTime/String.concat:(I)LrunTime/String;
+     496: new           #8                  // class runTime/String
+     499: dup           
+     500: ldc           #76                 // String  tests passed, 
+     502: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     505: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     508: iload_2       
+     509: invokevirtual #74                 // Method runTime/String.concat:(I)LrunTime/String;
+     512: new           #8                  // class runTime/String
+     515: dup           
+     516: ldc           #78                 // String  failed [
+     518: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     521: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     524: fload         6
+     526: invokevirtual #50                 // Method runTime/String.concat:(F)LrunTime/String;
+     529: new           #8                  // class runTime/String
+     532: dup           
+     533: ldc           #80                 // String ms]
+     535: invokespecial #14                 // Method runTime/String."<init>":(Ljava/lang/String;)V
+     538: invokevirtual #20                 // Method runTime/String.concat:(LrunTime/String;)LrunTime/String;
+     541: invokevirtual #83                 // Method runTime/String.output:()V
+     544: return        
 }

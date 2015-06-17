@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.apache.bcel.Constants;
+import org.apache.bcel.generic.ArrayType;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.GETSTATIC;
 import org.apache.bcel.generic.GOTO;
@@ -57,6 +58,16 @@ public class TestClassGenerator extends JavaClassGenerator {
 	 *             translated. If this is {@code null}, all class members are translated
 	 */
 
+	/*
+	 * ASSERT: ritorna la riga e colonna dell'errore come runtime/String se test e fallito
+	 * 			altrimenti continua con l'esecuzione del test
+	 *  		messo nel generate java bytecode di Assert.java
+	 * TEST:ritorna stringa vuota in fondo (dopo che passa tutti gli assert(messo in TestDeclaration)
+	 * 			nel translate
+	 * 
+	 * 
+	 */
+	
 	public TestClassGenerator(ClassType clazz, Set<ClassMemberSignature> sigs) {
 		super(clazz.getName()+"Test", // name of the class
 			// the superclass of the Kitten Object class is set to be the Java java.lang.Object class
@@ -79,14 +90,18 @@ public class TestClassGenerator extends JavaClassGenerator {
 			}
 		}
 		//crea main
-		//this nelle fixture e test diventa argomento?
 		this.createTestMain(clazz);
 	}
 	
 	private void createTestMain(ClassType clazz){
-		Type strType=Type.getType(String.class);
+		//definisco tipi per comodita dopo
+		Type strType=ClassType.mk("String").toBCEL();
 		Type arg_str[]={strType};
-		final int VAR_PASSED=1, VAR_FAILED=2, VAR_TIME=3, VAR_TOPRINT=4, VAR_SUPPORTOBJECT=5;
+		Type arg_C[]={clazz.toBCEL()};
+		//definisco variabili che utilizzero
+		//NOTA: LONG E DOUBLE OCCUPANO 2 VARIABILI
+		final int VAR_PASSED=1, VAR_FAILED=2, VAR_TIME=3
+				, VAR_TOPRINT=5, VAR_TOTALTIME=6;
 		
 		InstructionList il=new InstructionList();
 		//int passed=0
@@ -98,86 +113,94 @@ public class TestClassGenerator extends JavaClassGenerator {
 		//long startTest=0
 		il.append(InstructionFactory.LCONST_0);
 		il.append(InstructionFactory.createStore(Type.LONG, VAR_TIME));
-		//long startTest=0
-		il.append(InstructionFactory.createNull(Type.OBJECT));
-		il.append(InstructionFactory.createStore(Type.OBJECT, VAR_SUPPORTOBJECT));
+		//long totalTime=0
+		il.append(InstructionFactory.FCONST_0);
+		il.append(InstructionFactory.createStore(Type.FLOAT, VAR_TOTALTIME));
 		//String testResult="Test exec..."
-		il.append(new LDC(this.getConstantPool()
-				.addString("Test execution for class "+clazz.getName()+": \n")));
+		this.pushRunTimeString(il, "\nTest execution for class "+clazz.getName()+":\n");
 		il.append(InstructionFactory.createStore(strType, VAR_TOPRINT));
 		
 		
-		Type arg_C[]={clazz.toBCEL()};
+		
 		//per ogni test
 		for(TestSignature ts:clazz.getTests()){
-			
+			//Concateno nome del test
 			this.addConcatToVar(il,VAR_TOPRINT,"  - "+ts.getName()+": ");
-			
+			//creo nuovo oggetto della classe che sto testando
 			//C obj=new C()
 			il.append(this.getFactory().createNew((ObjectType)clazz.toBCEL()));
 			il.append(InstructionFactory.DUP);
 			il.append(this.getFactory().createInvoke(clazz.getName(), "<init>"
 					, Type.VOID, Type.NO_ARGS, Constants.INVOKESPECIAL));
-			/*
+			
 			//per ogni fixture
 			for(FixtureSignature fs:clazz.fixturesLookup()){
 				//fixture(obj)
+				//chiamo la fixture su quell'oggetto
 				il.append(InstructionFactory.DUP);
 				il.append(this.getFactory().createInvoke(clazz.getName()+"Test", fs.getName()
 						, Type.VOID, arg_C, Constants.INVOKESTATIC));
 			}
 			
+			//STACK |obj|
 			//startTest=System.nanoTime()
+			//per segnare il tempo prima della chiamata del test
 			il.append(this.getFactory().createInvoke(System.class.getName(), "nanoTime"
 					, Type.LONG, Type.NO_ARGS, Constants.INVOKESTATIC));
-			
 			il.append(InstructionFactory.createStore(Type.LONG, VAR_TIME));
 			
+			//STACK |obj|
+			
 			//String result=test(obj)
+			//chiamo test (non DUPlico obj e lo perdo... non serve piu)
 			il.append(this.getFactory().createInvoke(clazz.getName()+"Test", ts.getName()
 					, strType, arg_C, Constants.INVOKESTATIC));
-			//.....stack |result|
+			//STACK |result|
+			//NOTA il risultato e una stringa che e vuota se il test e passato
+			//     altrimenti contiene <riga.colonna> di dove e fallito
 			
 			//tempotrascorso=tempoattuale-startTest
 			il.append(this.getFactory().createInvoke(System.class.getName(), "nanoTime"
 					, Type.LONG, Type.NO_ARGS, Constants.INVOKESTATIC));
 			il.append(InstructionFactory.createLoad(Type.LONG, VAR_TIME));
 			il.append(InstructionFactory.LSUB);
-			//tempotrascorso/=1000000.0f (millisecondi)
+			//converto in millisecondi e prendo solo 2 cifre dopo la virgola
+			//divisione intera e poi divisione float
+			//(non sempre rimangono 2 cifre per arrotondamenti ma non ho trovato metodo migliore)
+			il.append(this.getFactory().createConstant(10000L));
+			il.append(InstructionFactory.LDIV);
 			il.append(InstructionFactory.L2F);
-			il.append(new LDC(this.getConstantPool().addFloat(1000000.0f)));
+			il.append(this.getFactory().createConstant(100.0f));
 			il.append(InstructionFactory.FDIV);
-			//......stack |result|float|
-			//creo array di Object che contiene un Float
-			Type[] arg_Float={Type.FLOAT};
-			il.append(this.getFactory()
-					.createInvoke(Float.class.getName(), "valueOf"
-							, Type.getType(Float.class), arg_Float, Constants.INVOKESTATIC));
-			il.append(InstructionFactory.createStore(Type.OBJECT, VAR_SUPPORTOBJECT));
-			il.append(InstructionFactory.ICONST_1);
-			il.append(this.getFactory().createNewArray(Type.OBJECT, (short) 1));
+			//accumulo totaltime
+			//QUA SI AGGIUNGE L'ACCUMULO
 			il.append(InstructionFactory.DUP);
-			//......stack |result|array|array|
-			il.append(InstructionFactory.ICONST_0);
-			il.append(InstructionFactory.createLoad(Type.OBJECT, VAR_SUPPORTOBJECT));
-			//......stack |result|array|array|0|Float|
-			il.append(InstructionFactory.createArrayStore(Type.OBJECT));
-			
-			//String s=String.format(..
-			il.append(new LDC(this.getConstantPool().addString("[%.2fms]")));
+			il.append(InstructionFactory.createLoad(Type.FLOAT, VAR_TOTALTIME));
+			il.append(InstructionFactory.FADD);
+			il.append(InstructionFactory.createStore(Type.FLOAT, VAR_TOTALTIME));
+			//STACK |result|float|
+			//aggiungo alla stringa da stampare
+			this.pushRunTimeString(il, "[");
 			il.append(InstructionFactory.SWAP);
-			Type format_args[]={strType,Type.getType(Object[].class)};
-			il.append(this.getFactory().createInvoke(String.class.getName(), "format"//possibile problema con float e Float
-					, strType, format_args, Constants.INVOKESTATIC));
-			//....lo stack ha |result|time|
+			//chiama concat()
+			//concateno il tempo di esecuzione di questo test
+			il.append(this.getFactory().createInvoke("runTime.String", "concat"
+							, strType, new Type[]{Type.FLOAT}, Constants.INVOKEVIRTUAL));
+			this.pushRunTimeString(il, "ms] ");
+			il.append(this.getFactory().createInvoke("runTime.String", "concat"
+					, strType, arg_str, Constants.INVOKEVIRTUAL));
+			
+			//STACK |result|timeStr|
 			
 			
-			//if result.isEmpty()
+			//if result.isEmpty() (Se test e passato)
 			il.append(InstructionFactory.SWAP);
-			//....lo stack ha |time|result|   sarebbe meglio il long del tempo nella var
 			il.append(InstructionFactory.DUP);
-			il.append(this.getFactory().createInvoke("java.lang.String", "isEmpty"
-					, Type.BOOLEAN, Type.NO_ARGS, Constants.INVOKEVIRTUAL));
+			this.pushRunTimeString(il, "");
+			il.append(this.getFactory().createInvoke("runTime.String", "equals"
+					, Type.BOOLEAN, arg_str, Constants.INVOKEVIRTUAL));
+			
+			//concateno passed o failed in base al risultato di isEmpty
 			
 			//blocco nel caso result e vuota*****************
 			InstructionList il_emptyresult=new InstructionList();
@@ -190,17 +213,19 @@ public class TestClassGenerator extends JavaClassGenerator {
 			il.append(new GOTO(ih_emptyresultend));
 			il.append(il_emptyresult);
 			//************************************************
-			*/
-			/*
+			
 			//concat time
 			il.append(InstructionFactory.SWAP);
-			//....lo stack ha |result|time|
+			//STACK |result|time|
 			this.addConcatToVar(il, VAR_TOPRINT);
-			//....lo stack ha |result|
-			*/
-			/*il.append(InstructionFactory.DUP);
-			il.append(this.getFactory().createInvoke("java.lang.String", "isEmpty"
-							, Type.BOOLEAN, Type.NO_ARGS, Constants.INVOKEVIRTUAL));
+			//STACK |result|
+			
+			//controllo di nuovo il risultato del test
+			//aggiungo la riga se il test e fallito, altrimenti vado a capo
+			il.append(InstructionFactory.DUP);
+			this.pushRunTimeString(il, "");
+			il.append(this.getFactory().createInvoke("runTime.String", "equals"
+					, Type.BOOLEAN, arg_str, Constants.INVOKEVIRTUAL));
 			//****caso isEmpty sia true**************
 			//scrivo "at <riga>" e incremento failed
 			InstructionList il_adderrorline=new InstructionList();
@@ -220,52 +245,45 @@ public class TestClassGenerator extends JavaClassGenerator {
 			il.append(new IINC(VAR_PASSED, 1));
 			il.append(new GOTO(ih_adderrorlineend));
 			//******************************************
-			il.append(il_adderrorline);*/
+			il.append(il_adderrorline);
 			
 		}
-		//MANCA IL TEMPO TOTALE!!
-		//String s=String.format(..
+		
 		//stack vuoto
-		il.append(InstructionFactory.POP);
-		il.append(this.getFactory().createGetStatic("java.lang.System", "out",Type.getType(PrintStream.class)));
-		
-		/*il.append(new LDC(this.getConstantPool()
-				.addString("%d tests passed, %d failed [ ms]")));
-		
-		il.append(InstructionFactory.ICONST_2);
-		il.append(this.getFactory().createNewArray(Type.OBJECT, (short) 1));
-		
-		il.append(InstructionFactory.DUP);
-		il.append(InstructionFactory.ICONST_0);
-		il.append(InstructionFactory.createLoad(Type.INT, VAR_PASSED));
-		Type[] arg_Integer={Type.INT};
-		il.append(this.getFactory()
-				.createInvoke(Integer.class.getName(), "valueOf"
-						, Type.getType(Integer.class), arg_Integer, Constants.INVOKESTATIC));
-		il.append(InstructionFactory.createArrayStore(Type.OBJECT));
-		
-		il.append(InstructionFactory.DUP);
-		il.append(InstructionFactory.ICONST_1);
-		il.append(InstructionFactory.createLoad(Type.INT, VAR_FAILED));
-		il.append(this.getFactory()
-				.createInvoke(Integer.class.getName(), "valueOf"
-						, Type.getType(Integer.class), arg_Integer, Constants.INVOKESTATIC));
-		il.append(InstructionFactory.createArrayStore(Type.OBJECT));
-		
-		
-		
-		Type format_args[]={strType,Type.getType(Object[].class)};
-		il.append(this.getFactory().createInvoke(String.class.getName(), "format"//possibile problema con float e Float
-				, strType, format_args, Constants.INVOKESTATIC));
+		//concateno il numero di test passati e il numero di test falliti e infine il tempo totale
 		
 		this.addConcatToVar(il, VAR_TOPRINT,"\n");
-		this.addConcatToVar(il, VAR_TOPRINT);
-		
-		*/
-		Type print_args[]={strType};
 		il.append(InstructionFactory.createLoad(strType, VAR_TOPRINT));
-		il.append(this.getFactory().createInvoke("java.io.PrintStream", "println"
-				, Type.VOID, print_args, Constants.INVOKEVIRTUAL));
+		
+		Type[] arg_int={Type.INT};
+		il.append(InstructionFactory.createLoad(Type.INT, VAR_PASSED));
+		il.append(this.getFactory().createInvoke("runTime.String", "concat"
+				, strType, arg_int, Constants.INVOKEVIRTUAL));
+		
+		this.pushRunTimeString(il, " tests passed, ");
+		il.append(this.getFactory().createInvoke("runTime.String", "concat"
+				, strType, arg_str, Constants.INVOKEVIRTUAL));
+		
+		il.append(InstructionFactory.createLoad(Type.INT, VAR_FAILED));
+		il.append(this.getFactory().createInvoke("runTime.String", "concat"
+				, strType, arg_int, Constants.INVOKEVIRTUAL));
+		
+		this.pushRunTimeString(il, " failed [");
+		il.append(this.getFactory().createInvoke("runTime.String", "concat"
+				, strType, arg_str, Constants.INVOKEVIRTUAL));
+		
+		il.append(InstructionFactory.createLoad(Type.FLOAT, VAR_TOTALTIME));
+		il.append(this.getFactory().createInvoke("runTime.String", "concat"
+				, strType, new Type[]{Type.FLOAT}, Constants.INVOKEVIRTUAL));
+		
+		this.pushRunTimeString(il, "ms]");
+		il.append(this.getFactory().createInvoke("runTime.String", "concat"
+				, strType, arg_str, Constants.INVOKEVIRTUAL));
+		
+		il.append(this.getFactory().createInvoke("runTime.String", "output"
+				, Type.VOID, Type.NO_ARGS, Constants.INVOKEVIRTUAL));
+		
+		
 	
 		il.append(InstructionFactory.createReturn(Type.VOID));
 		
@@ -287,36 +305,44 @@ public class TestClassGenerator extends JavaClassGenerator {
 		this.addMethod(methodGen.getMethod());
 	}
 	
+	//funzione che pusha sullo stack la stringa kitten specificata
+	private void pushRunTimeString(InstructionList il,String toPush){
+		il.append(this.getFactory().createNew("runTime/String"));
+		il.append(InstructionFactory.DUP);
+		il.append(this.getFactory().createConstant(toPush));
+		il.append(this.getFactory().createInvoke("runTime.String", "<init>"
+				, Type.VOID, new Type[]{Type.getType(String.class)}
+				,Constants.INVOKESPECIAL));
+	}
+	
+	//funzione che genera il bytecode concatena una stringa ad una variabile
 	private InstructionHandle addConcatToVar(InstructionList il,int varIndex, String toConcat){
-		Type strType=Type.getType(String.class);
+		Type strType=ClassType.mk("String").toBCEL();
 		Type arg_str[]={strType};
 		//carica variabile
 		InstructionHandle toRet= il.append(InstructionFactory.createLoad(strType, varIndex));
 		//carica stringa
-		il.append(new LDC(this.getConstantPool().addString(toConcat)));
+		this.pushRunTimeString(il, toConcat);
 		
 		//chiama concat()
-		il.append(this.getFactory()
-				.createInvoke("java.lang.String", "concat"
+		il.append(this.getFactory().createInvoke("runTime.String", "concat"
 						, strType, arg_str, Constants.INVOKEVIRTUAL));
 		//salva in variabile
-		il.append(InstructionFactory
-				.createStore(strType, varIndex));
+		il.append(InstructionFactory.createStore(strType, varIndex));
 		return toRet;
 	}
 	
-	//su stack c'e stringa da concatenare in fondo
+	//genero bytecode per concatenare alla var specificata la stringa in cima allo stack
 	private InstructionHandle addConcatToVar(InstructionList il,int varIndex){
-		Type strType=Type.getType(String.class);
+		Type strType=ClassType.mk("String").toBCEL();
 		Type arg_str[]={strType};
 		//carica variabile
 		InstructionHandle toRet= il.append(InstructionFactory.createLoad(strType, varIndex));
 		//swap
 		il.append(InstructionFactory.SWAP);
-		
 		//chiama concat()
 		il.append(this.getFactory()
-				.createInvoke("java.lang.String", "concat"
+				.createInvoke("runTime.String", "concat"
 						, strType, arg_str, Constants.INVOKEVIRTUAL));
 		//salva in variabile
 		il.append(InstructionFactory
