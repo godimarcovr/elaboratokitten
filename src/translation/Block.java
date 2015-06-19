@@ -7,6 +7,8 @@ import java.util.Set;
 
 import types.ClassType;
 import types.CodeSignature;
+import types.FixtureSignature;
+import types.TestSignature;
 import bytecode.BranchingBytecode;
 import bytecode.Bytecode;
 import bytecode.BytecodeList;
@@ -234,7 +236,14 @@ public class Block {
 		program.getSigs().addAll(program.getStart().getDefiningClass().fixturesLookup());
 		program.getSigs().addAll(program.getStart().getDefiningClass().getTests());
 		//***********
-		cleanUp(new HashSet<Block>(), program);
+		Set done=new HashSet<Block>();
+		this.cleanUp(done, program);
+		for(FixtureSignature fs :program.getStart().getDefiningClass().fixturesLookup()){
+			fs.getCode().cleanUp(done, program);
+		}
+		for(TestSignature ts :program.getStart().getDefiningClass().getTests()){
+			ts.getCode().cleanUp(done, program);
+		}
 	}
 
 	/**

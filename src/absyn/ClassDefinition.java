@@ -9,7 +9,9 @@ import java.util.Set;
 import translation.Program;
 import types.ClassMemberSignature;
 import types.ClassType;
+import types.FixtureSignature;
 import types.MethodSignature;
+import types.TestSignature;
 import types.TypeList;
 
 /**
@@ -203,6 +205,13 @@ public class ClassDefinition extends Absyn {
     	// we translate everything that is reachable from the main method of this class (if any)
     	if (main != null)
     		main.getAbstractSyntax().translate(done);
+    	
+    	for(FixtureSignature fs: staticType.fixturesLookup()){
+    		fs.getAbstractSyntax().translate(done);
+    	}
+    	for(TestSignature ts: staticType.getTests()){
+    		ts.getAbstractSyntax().translate(done);
+    	}
 
     	return new Program(done, main);
     }

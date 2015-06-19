@@ -10,15 +10,11 @@ class MyFibonacci {
     if (n = 0 | n = 1) then return 1
     else return this.fib(n - 1) + this.fib(n - 2)
 
-method void exe()
-    this.asserzione:=new MyAssert()
-
   method void main() {
     String s := new String();
     MyFibonacci mf:=new MyFibonacci();
     mf.asserzione:=new MyAssert();
     MyAssert ma:=new MyAssert();
-    ma.fib(2);
 
     "Insert a relatively small number: ".output();
 

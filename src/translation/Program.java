@@ -86,8 +86,10 @@ public class Program {
 	 */
 
 	public void cleanUp() {
+		System.out.println(sigs);
 		sigs.clear();
 		start.getCode().cleanUp(this);
+		System.out.println("***************\n"+sigs);
 	}
 
 	/**
